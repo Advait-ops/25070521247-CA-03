@@ -1,0 +1,6 @@
+{
+  "name": "Medilife General Hospital",
+  "description": "Modern hospital web experience for Medilife General Hospital with comprehensive medical departments, specialized doctors, and interactive appointment booking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
