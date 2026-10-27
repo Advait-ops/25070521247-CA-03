@@ -15,10 +15,11 @@ import {
   MapPin,
   DollarSign
 } from 'lucide-react';
-import { DEPARTMENTS, DOCTORS } from '../data/hospitalData';
+import { DEPARTMENTS } from '../data/hospitalData';
 import { Appointment, Department, Doctor } from '../types';
 import { DepartmentIcon } from './DepartmentIcon';
 import { useAuth } from '../context/AuthContext';
+import { useDoctors } from '../context/DoctorContext';
 
 interface AppointmentModalProps {
   isOpen: boolean;
@@ -36,6 +37,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
   onAppointmentCreated,
 }) => {
   const { currentUser, userProfile } = useAuth();
+  const { doctors } = useDoctors();
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<string>(
     initialDepartmentId || DEPARTMENTS[0].id
@@ -77,7 +79,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       if (initialDoctorId) {
-        const doc = DOCTORS.find((d) => d.id === initialDoctorId);
+        const doc = doctors.find((d) => d.id === initialDoctorId);
         if (doc) {
           setSelectedDoctorId(doc.id);
           setSelectedDepartmentId(doc.departmentId);
@@ -85,27 +87,28 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
         }
       } else if (initialDepartmentId) {
         setSelectedDepartmentId(initialDepartmentId);
-        // default to first doctor in that dept
-        const firstDoc = DOCTORS.find((d) => d.departmentId === initialDepartmentId);
+        // default to first active doctor in that dept
+        const firstDoc = doctors.find((d) => d.departmentId === initialDepartmentId && d.status !== 'on_leave');
         if (firstDoc) setSelectedDoctorId(firstDoc.id);
         setCurrentStep(2);
       } else {
         setCurrentStep(1);
       }
     }
-  }, [isOpen, initialDepartmentId, initialDoctorId]);
+  }, [isOpen, initialDepartmentId, initialDoctorId, doctors]);
 
   if (!isOpen) return null;
 
   const currentDepartment: Department =
     DEPARTMENTS.find((d) => d.id === selectedDepartmentId) || DEPARTMENTS[0];
 
-  const availableDoctors: Doctor[] = DOCTORS.filter(
+  const availableDoctors: Doctor[] = doctors.filter(
     (d) => d.departmentId === selectedDepartmentId
   );
 
   const currentDoctor: Doctor | undefined =
-    DOCTORS.find((d) => d.id === selectedDoctorId) || availableDoctors[0];
+    doctors.find((d) => d.id === selectedDoctorId) || availableDoctors[0];
+
 
   // Generate next 10 upcoming consultation dates
   const generateAvailableDates = () => {
@@ -268,7 +271,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 {DEPARTMENTS.map((dept) => {
                   const isSelected = selectedDepartmentId === dept.id;
-                  const deptDocCount = DOCTORS.filter((d) => d.departmentId === dept.id).length;
+                  const deptDocCount = doctors.filter((d) => d.departmentId === dept.id).length;
                   return (
                     <button
                       key={dept.id}
@@ -276,7 +279,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                       onClick={() => {
                         setSelectedDepartmentId(dept.id);
                         // Pick first doctor of department
-                        const firstDoc = DOCTORS.find((d) => d.departmentId === dept.id);
+                        const firstDoc = doctors.find((d) => d.departmentId === dept.id && d.status !== 'on_leave') || doctors.find((d) => d.departmentId === dept.id);
                         if (firstDoc) setSelectedDoctorId(firstDoc.id);
                       }}
                       className={`text-left p-4 rounded-xl border transition-all cursor-pointer flex flex-col justify-between ${

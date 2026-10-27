@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PageView } from '../types';
-import { Phone, CalendarCheck2, Menu, X, Clock, User as UserIcon, LogOut } from 'lucide-react';
+import { Phone, CalendarCheck2, Menu, X, Clock, User as UserIcon, LogOut, ShieldCheck } from 'lucide-react';
 import { HOSPITAL_CONTACT } from '../data/hospitalData';
 import { useAuth } from '../context/AuthContext';
 
@@ -24,11 +24,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   const { currentUser, userProfile, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navItems: { id: PageView; label: string }[] = [
+  const isSuperAdmin = currentUser?.email === 'advait.adkine@gmail.com';
+
+  const navItems: { id: PageView; label: string; badge?: string }[] = [
     { id: 'home', label: 'Home' },
     { id: 'departments', label: 'Departments' },
     { id: 'doctors', label: 'Doctors' },
     { id: 'about', label: 'About Us' },
+    { id: 'admin', label: 'Admin Portal', badge: isSuperAdmin ? 'Super Admin' : 'Admin' },
   ];
 
   const handleNavClick = (page: PageView) => {
@@ -36,6 +39,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     setMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-stone-200 transition-all">
@@ -85,22 +89,34 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </button>
 
-          {/* Zone 2: 4 clean single-line nav links */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleNavClick(item.id)}
-                className={`whitespace-nowrap shrink-0 py-2 border-b-2 transition-all cursor-pointer ${
-                  currentPage === item.id
-                    ? 'border-[#2D543E] text-[#2D543E] font-semibold'
-                    : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-stone-300'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
+          {/* Zone 2: 4 clean single-line nav links + Admin Portal */}
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-slate-600">
+            {navItems.map((item) => {
+              const isAdmin = item.id === 'admin';
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  className={`whitespace-nowrap shrink-0 py-2 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+                    currentPage === item.id
+                      ? 'border-[#2D543E] text-[#2D543E] font-semibold'
+                      : isAdmin
+                      ? 'border-transparent text-emerald-800 hover:text-emerald-950 font-semibold'
+                      : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-stone-300'
+                  }`}
+                >
+                  {isAdmin && <ShieldCheck className="w-4 h-4 text-emerald-700" />}
+                  <span>{item.label}</span>
+                  {isAdmin && item.badge && (
+                    <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </nav>
+
 
           {/* Zone 3: 1 primary action + My Bookings Drawer trigger + User Profile/Auth */}
           <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
@@ -219,21 +235,35 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           )}
 
-          <nav className="flex flex-col space-y-3">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleNavClick(item.id)}
-                className={`text-left py-2 px-3 rounded-lg text-base font-medium transition-colors ${
-                  currentPage === item.id
-                    ? 'bg-emerald-50 text-[#2D543E] font-semibold'
-                    : 'text-slate-700 hover:bg-stone-50'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
+          <nav className="flex flex-col space-y-2">
+            {navItems.map((item) => {
+              const isAdmin = item.id === 'admin';
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  className={`text-left py-2.5 px-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-between ${
+                    currentPage === item.id
+                      ? 'bg-emerald-50 text-[#2D543E] font-semibold'
+                      : isAdmin
+                      ? 'bg-stone-50 text-emerald-900 font-semibold'
+                      : 'text-slate-700 hover:bg-stone-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {isAdmin && <ShieldCheck className="w-4 h-4 text-[#2D543E]" />}
+                    <span>{item.label}</span>
+                  </div>
+                  {isAdmin && item.badge && (
+                    <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </nav>
+
           <div className="pt-3 border-t border-stone-100 flex flex-col gap-2.5">
             <button
               onClick={() => {

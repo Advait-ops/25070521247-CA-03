@@ -98,6 +98,18 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenBooking }) => 
               </li>
               <li>
                 <button
+                  onClick={() => {
+                    onNavigate('admin');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="text-emerald-300 hover:text-white font-medium transition-colors cursor-pointer flex items-center gap-1"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Admin & Doctor Portal</span>
+                </button>
+              </li>
+              <li>
+                <button
                   onClick={() => onOpenBooking()}
                   className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors cursor-pointer"
                 >
@@ -106,6 +118,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenBooking }) => 
               </li>
             </ul>
           </div>
+
 
           {/* Col 3: Departments Directory */}
           <div className="lg:col-span-3 space-y-3">

@@ -15,7 +15,9 @@ import { AppointmentModal } from './components/AppointmentModal';
 import { MyAppointmentsDrawer } from './components/MyAppointmentsDrawer';
 import { DoctorProfileModal } from './components/DoctorProfileModal';
 import { AuthModal } from './components/AuthModal';
+import { AdminPortal } from './components/AdminPortal';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { DoctorProvider } from './context/DoctorContext';
 import { db } from './firebase';
 import { 
   collection, 
@@ -255,6 +257,10 @@ function HospitalApp() {
             onOpenBooking={() => handleOpenBooking()}
           />
         )}
+
+        {currentPage === 'admin' && (
+          <AdminPortal />
+        )}
       </main>
 
       {/* Site Footer */}
@@ -310,7 +316,10 @@ function HospitalApp() {
 export default function App() {
   return (
     <AuthProvider>
-      <HospitalApp />
+      <DoctorProvider>
+        <HospitalApp />
+      </DoctorProvider>
     </AuthProvider>
   );
 }
+

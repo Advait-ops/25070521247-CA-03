@@ -19,6 +19,10 @@ export interface Doctor {
   imageFallbackGradient: string;
   education: string[];
   memberships: string[];
+  status?: 'available' | 'on_leave' | 'emergency_only';
+  dutyNote?: string;
+  phone?: string;
+  email?: string;
 }
 
 export interface Department {
@@ -44,6 +48,7 @@ export interface UserProfile {
   age?: number;
   gender?: 'Female' | 'Male' | 'Other' | 'Prefer not to say';
   createdAt: string;
+  role?: 'patient' | 'admin' | 'staff';
 }
 
 export interface Appointment {
@@ -64,9 +69,11 @@ export interface Appointment {
   visitReason: string;
   symptoms?: string;
   roomNumber: string;
-  status: 'Confirmed' | 'Rescheduled' | 'Cancelled';
+  status: 'Confirmed' | 'Rescheduled' | 'Cancelled' | 'In-Consultation' | 'Completed';
   createdAt: string;
   confirmationCode: string;
+  adminNotes?: string;
+  tokenNumber?: number;
 }
 
 export interface Testimonial {
@@ -81,4 +88,5 @@ export interface Testimonial {
   date: string;
 }
 
-export type PageView = 'home' | 'about' | 'departments' | 'doctors';
+export type PageView = 'home' | 'about' | 'departments' | 'doctors' | 'admin';
+

@@ -35,6 +35,18 @@ export async function fetchMongoAppointments(userId?: string): Promise<Appointme
   }
 }
 
+export async function fetchAllAppointmentsAdmin(): Promise<Appointment[]> {
+  try {
+    const res = await fetch('/api/appointments?all=true');
+    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.warn('Could not fetch all appointments from MongoDB API:', err);
+    return [];
+  }
+}
+
 export async function saveMongoAppointment(appointment: Appointment): Promise<boolean> {
   try {
     const res = await fetch('/api/appointments', {
@@ -54,7 +66,14 @@ export async function saveMongoAppointment(appointment: Appointment): Promise<bo
 
 export async function updateMongoAppointmentStatus(
   id: string, 
-  status: 'Confirmed' | 'Rescheduled' | 'Cancelled'
+  status: 'Confirmed' | 'Rescheduled' | 'Cancelled' | 'In-Consultation' | 'Completed'
+): Promise<boolean> {
+  return updateMongoAppointment(id, { status });
+}
+
+export async function updateMongoAppointment(
+  id: string,
+  updates: Partial<Appointment>
 ): Promise<boolean> {
   try {
     const res = await fetch(`/api/appointments/${encodeURIComponent(id)}`, {
@@ -62,12 +81,26 @@ export async function updateMongoAppointmentStatus(
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify(updates),
     });
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
     return true;
   } catch (err) {
-    console.warn('Could not update appointment status in MongoDB backend:', err);
+    console.warn('Could not update appointment in MongoDB backend:', err);
     return false;
   }
 }
+
+export async function deleteMongoAppointment(id: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/appointments/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+    return true;
+  } catch (err) {
+    console.warn('Could not delete appointment from MongoDB backend:', err);
+    return false;
+  }
+}
+

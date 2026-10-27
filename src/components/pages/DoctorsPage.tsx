@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Filter, Stethoscope, ArrowRight, X, Calendar } from 'lucide-react';
-import { DOCTORS, DEPARTMENTS } from '../../data/hospitalData';
+import { DEPARTMENTS } from '../../data/hospitalData';
 import { Doctor } from '../../types';
 import { DoctorCard } from '../DoctorCard';
 import { DepartmentIcon } from '../DepartmentIcon';
+import { useDoctors } from '../../context/DoctorContext';
 
 interface DoctorsPageProps {
   onOpenBooking: (departmentId?: string, doctorId?: string) => void;
@@ -14,13 +15,14 @@ export const DoctorsPage: React.FC<DoctorsPageProps> = ({
   onOpenBooking,
   onViewDoctorProfile,
 }) => {
+  const { doctors } = useDoctors();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState('all');
   const [minExperience, setMinExperience] = useState<number>(0);
 
   // Filtered doctors
   const filteredDoctors = useMemo(() => {
-    return DOCTORS.filter((doc) => {
+    return doctors.filter((doc) => {
       // Dept filter
       if (selectedDepartment !== 'all' && doc.departmentId !== selectedDepartment) {
         return false;
@@ -41,7 +43,8 @@ export const DoctorsPage: React.FC<DoctorsPageProps> = ({
       }
       return true;
     });
-  }, [searchQuery, selectedDepartment, minExperience]);
+  }, [doctors, searchQuery, selectedDepartment, minExperience]);
+
 
   const handleResetFilters = () => {
     setSearchQuery('');
@@ -125,10 +128,10 @@ export const DoctorsPage: React.FC<DoctorsPageProps> = ({
                 : 'text-stone-600 hover:bg-stone-100'
             }`}
           >
-            All Specialties ({DOCTORS.length})
+            All Specialties ({doctors.length})
           </button>
           {DEPARTMENTS.map((dept) => {
-            const count = DOCTORS.filter((d) => d.departmentId === dept.id).length;
+            const count = doctors.filter((d) => d.departmentId === dept.id).length;
             return (
               <button
                 key={dept.id}
@@ -151,8 +154,9 @@ export const DoctorsPage: React.FC<DoctorsPageProps> = ({
       <div className="flex items-center justify-between text-xs text-stone-500 px-1">
         <span>
           Showing <strong className="text-slate-900">{filteredDoctors.length}</strong> of{' '}
-          <strong className="text-slate-900">{DOCTORS.length}</strong> Board-Certified Specialists
+          <strong className="text-slate-900">{doctors.length}</strong> Board-Certified Specialists
         </span>
+
         {(searchQuery || selectedDepartment !== 'all' || minExperience > 0) && (
           <button
             onClick={handleResetFilters}

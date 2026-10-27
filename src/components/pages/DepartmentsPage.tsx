@@ -10,10 +10,11 @@ import {
   Sparkles,
   PhoneCall 
 } from 'lucide-react';
-import { DEPARTMENTS, DOCTORS, HOSPITAL_CONTACT } from '../../data/hospitalData';
+import { DEPARTMENTS, HOSPITAL_CONTACT } from '../../data/hospitalData';
 import { Department, Doctor, PageView } from '../../types';
 import { DepartmentIcon } from '../DepartmentIcon';
 import { DoctorCard } from '../DoctorCard';
+import { useDoctors } from '../../context/DoctorContext';
 
 interface DepartmentsPageProps {
   onOpenBooking: (departmentId?: string, doctorId?: string) => void;
@@ -26,7 +27,9 @@ export const DepartmentsPage: React.FC<DepartmentsPageProps> = ({
   onViewDoctorProfile,
   onNavigate,
 }) => {
+  const { doctors } = useDoctors();
   const [selectedDeptId, setSelectedDeptId] = useState<string>('all');
+
 
   const filteredDepartments = selectedDeptId === 'all'
     ? DEPARTMENTS
@@ -79,7 +82,7 @@ export const DepartmentsPage: React.FC<DepartmentsPageProps> = ({
       {/* Departments Detailed List */}
       <div className="space-y-16">
         {filteredDepartments.map((dept) => {
-          const deptDoctors = DOCTORS.filter((d) => d.departmentId === dept.id);
+          const deptDoctors = doctors.filter((d) => d.departmentId === dept.id);
 
           return (
             <section

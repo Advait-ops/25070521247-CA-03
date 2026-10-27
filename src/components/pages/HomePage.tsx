@@ -14,7 +14,6 @@ import {
 } from 'lucide-react';
 import { 
   DEPARTMENTS, 
-  DOCTORS, 
   HOSPITAL_STATS, 
   TESTIMONIALS, 
   ACCREDITATIONS, 
@@ -24,6 +23,7 @@ import {
 import { Department, Doctor, PageView } from '../../types';
 import { DepartmentIcon } from '../DepartmentIcon';
 import { DoctorCard } from '../DoctorCard';
+import { useDoctors } from '../../context/DoctorContext';
 
 interface HomePageProps {
   onNavigate: (page: PageView) => void;
@@ -36,8 +36,10 @@ export const HomePage: React.FC<HomePageProps> = ({
   onOpenBooking,
   onViewDoctorProfile,
 }) => {
-  // 4 Featured Doctors (Department Chiefs)
-  const featuredDoctors = DOCTORS.slice(0, 4);
+  const { doctors } = useDoctors();
+  // Featured Doctors (First 4 active doctors)
+  const featuredDoctors = doctors.filter((d) => d.status !== 'on_leave').slice(0, 4);
+
 
   return (
     <div className="space-y-16 sm:space-y-24 pb-16">
@@ -208,8 +210,9 @@ export const HomePage: React.FC<HomePageProps> = ({
         {/* 6 Department Bento Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {DEPARTMENTS.map((dept) => {
-            const docCount = DOCTORS.filter((d) => d.departmentId === dept.id).length;
+            const docCount = doctors.filter((d) => d.departmentId === dept.id).length;
             return (
+
               <div
                 key={dept.id}
                 className="bg-white rounded-2xl border border-stone-200/90 hover:border-[#2D543E]/40 p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
