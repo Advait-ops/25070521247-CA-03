@@ -16,7 +16,9 @@ import './config/db.ts';
 dotenv.config({ path: path.resolve(process.cwd(), '.env'), override: true });
 
 export const app = express();
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const PORT = process.env.NODE_ENV === 'production'
+  ? (process.env.PORT ? parseInt(process.env.PORT, 10) : 3000)
+  : 3000;
 
 app.use(express.json());
 

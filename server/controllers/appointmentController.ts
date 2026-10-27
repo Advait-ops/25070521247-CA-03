@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { getDb, inMemoryAppointments } from '../config/db.ts';
-import { IAppointment } from '../models/Appointment.ts';
+import type { IAppointment } from '../models/Appointment.ts';
 
 export async function getAppointments(req: Request, res: Response) {
   const { userId, all } = req.query;
@@ -80,13 +80,14 @@ export async function updateAppointment(req: Request, res: Response) {
     const activeDb = await getDb();
     if (activeDb) {
       const collection = activeDb.collection('appointments');
-      await collection.updateOne(
-        { id },
+      const result = await collection.updateOne(
+        { $or: [{ id }, { confirmationCode: id }] },
         { $set: { ...updates, updatedAt: new Date().toISOString() } }
       );
-      return res.json({ success: true, source: 'mongodb' });
+      console.log(`[Update Appointment] Updated in MongoDB: ${id}, modified: ${result.modifiedCount}`);
+      return res.json({ success: true, source: 'mongodb', modifiedCount: result.modifiedCount });
     } else {
-      const apt = inMemoryAppointments.find((a) => a.id === id);
+      const apt = inMemoryAppointments.find((a) => a.id === id || a.confirmationCode === id);
       if (apt) {
         Object.assign(apt, updates, { updatedAt: new Date().toISOString() });
       }
@@ -105,10 +106,13 @@ export async function deleteAppointment(req: Request, res: Response) {
     const activeDb = await getDb();
     if (activeDb) {
       const collection = activeDb.collection('appointments');
-      await collection.deleteOne({ id });
-      return res.json({ success: true, source: 'mongodb' });
+      const result = await collection.deleteOne({
+        $or: [{ id }, { confirmationCode: id }]
+      });
+      console.log(`[Delete Appointment] Deleted from MongoDB: ${id}, count: ${result.deletedCount}`);
+      return res.json({ success: true, source: 'mongodb', deletedCount: result.deletedCount });
     } else {
-      const idx = inMemoryAppointments.findIndex((a) => a.id === id);
+      const idx = inMemoryAppointments.findIndex((a) => a.id === id || a.confirmationCode === id);
       if (idx >= 0) inMemoryAppointments.splice(idx, 1);
       return res.json({ success: true, source: 'memory_fallback' });
     }

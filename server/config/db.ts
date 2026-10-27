@@ -1,15 +1,15 @@
 import { MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
 import path from 'path';
-import { DOCTORS } from '../../client/src/data/hospitalData.ts';
-import { IDoctor } from '../models/Doctor.ts';
-import { IAppointment } from '../models/Appointment.ts';
+import { INITIAL_SEED_DOCTORS } from '../data/seedDoctors.ts';
+import type { IDoctor } from '../models/Doctor.ts';
+import type { IAppointment } from '../models/Appointment.ts';
 
 // Force load .env with override so live credentials take precedence
 dotenv.config({ path: path.resolve(process.cwd(), '.env'), override: true });
 
 export let inMemoryAppointments: IAppointment[] = [];
-export let inMemoryDoctors: IDoctor[] = [...(DOCTORS as unknown as IDoctor[])];
+export let inMemoryDoctors: IDoctor[] = [...INITIAL_SEED_DOCTORS];
 
 let mongoClient: MongoClient | null = null;
 let dbInstance: any = null;
@@ -35,10 +35,10 @@ export async function getDb() {
     try {
       const doctorsCol = dbInstance.collection('doctors');
       const count = await doctorsCol.countDocuments();
-      if (count === 0 && DOCTORS && DOCTORS.length > 0) {
-        console.log(`Seeding ${DOCTORS.length} initial doctors to MongoDB collection 'doctors'...`);
+      if (count === 0 && INITIAL_SEED_DOCTORS.length > 0) {
+        console.log(`Seeding ${INITIAL_SEED_DOCTORS.length} initial doctors to MongoDB collection 'doctors'...`);
         await doctorsCol.insertMany(
-          DOCTORS.map((d) => ({
+          INITIAL_SEED_DOCTORS.map((d) => ({
             ...d,
             status: d.status || 'available',
             createdAt: new Date().toISOString(),

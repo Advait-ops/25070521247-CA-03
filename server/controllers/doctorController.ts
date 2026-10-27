@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { getDb, inMemoryDoctors } from '../config/db.ts';
-import { IDoctor } from '../models/Doctor.ts';
+import type { IDoctor } from '../models/Doctor.ts';
 
 export async function getDoctors(req: Request, res: Response) {
   try {

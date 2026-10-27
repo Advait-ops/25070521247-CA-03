@@ -1,4 +1,4 @@
-import { Department, Doctor, Testimonial } from '../types';
+import { Department, Doctor, Testimonial } from '../types.ts';
 
 export const HOSPITAL_IMAGES = {
   heroLobby: '/client/src/assets/images/hero_hospital_lobby_1793035816905.jpg',

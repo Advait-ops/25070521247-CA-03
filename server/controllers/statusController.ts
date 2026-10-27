@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { getDb, inMemoryAppointments, inMemoryDoctors } from '../config/db.ts';
 
 export async function getStatus(req: Request, res: Response) {
